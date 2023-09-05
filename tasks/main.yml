@@ -11,6 +11,10 @@
       - url is defined
       - host_port is defined
       - username_header is defined
+      - database_container_name is defined
+      - database_user is defined
+      - database_password is defined
+      - database_name is defined
 
 - name: Create the dockernetwork
   docker_network:
@@ -41,8 +45,28 @@
       SECURE_PROXY_SSL_HEADER: "True"
       REVERSE_PROXY_AUTH: "True"
       PROXY_HEADER: "{{ username_header }}"
+      DB_ENGINE: "django.db.backends.postgresq"
+      DB_HOST: "{{ database_container_name }}"
+      DB_NAME: "{{ database_name }}"
+      DB_PASSWORD: "{{ database_password }}"
+      DB_USER: "{{ database_user }}"
 
 # Restart the container so the configuration changes are picked up
 - name: Restart babybuddy
   shell: 
     cmd: docker restart babybuddy
+
+- name: Create database
+  include_role:
+    name: ansible-postgres
+    tasks_from: create-postgres-database-if-not-exists
+
+- name: Setup database backups
+  include_role:
+    name: ansible-backups
+    tasks_from: setup-postgres-database-backups
+
+- name: Setup S3 backups
+  include_role:
+    name: ansible-backups
+    tasks_from: setup-s3-backups
