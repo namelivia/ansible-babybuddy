@@ -10,6 +10,7 @@
       - gid is defined
       - url is defined
       - host_port is defined
+      - username_header is defined
 
 - name: Create the dockernetwork
   docker_network:
@@ -38,6 +39,8 @@
       PGID: "{{ gid }}"
       CSRF_TURSTED_ORIGINS: "http://127.0.0.1:8000,{{ url }}"
       SECURE_PROXY_SSL_HEADER: "True"
+      REVERSE_PROXY_AUTH: "True"
+      PROXY_HEADER: "{{ username_header }}"
 
 # Restart the container so the configuration changes are picked up
 - name: Restart babybuddy
