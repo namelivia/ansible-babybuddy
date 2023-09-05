@@ -1,0 +1,41 @@
+---
+- name: 'Check mandatory variables are defined'
+  assert:
+    that:
+      - application_name is defined
+      - docker_network_name is defined
+      - loki_url is defined
+      - babybuddy_config_path is defined
+      - uid is defined
+      - gid is defined
+      - url is defined
+
+- name: Create the dockernetwork
+  docker_network:
+    name: "{{ docker_network_name }}"
+
+- name: Create app container
+  docker_container:
+    name: "{{ application_name }}"
+    image: "lscr.io/linuxserver/babybuddy:2.0.4"
+    restart_policy: "always"
+    cleanup: true
+    pull: true
+    log_driver: "loki"
+    log_options:
+      loki-url: "{{ loki_url }}"
+      loki-batch-size: "400"
+    networks:
+      - name: "{{ docker_network_name }}"
+    volumes:
+      - "{{ hostvars[inventory_hostname].working_directory }}babybuddy:/config"
+    env:
+      TZ: "Europe/Madrid"
+      PUID: "{{ uid }}"
+      PGID: "{{ gid }}"
+      CSRF_TURSTED_ORIGINS: "http://127.0.0.1:8000,{{ url }}"
+
+# Restart the container so the configuration changes are picked up
+- name: Restart babybuddy
+  shell: 
+    cmd: docker restart babybuddy
