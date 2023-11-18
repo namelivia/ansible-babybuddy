@@ -23,7 +23,7 @@
 - name: Create app container
   docker_container:
     name: "{{ application_name }}"
-    image: "lscr.io/linuxserver/babybuddy:2.0.4"
+    image: "lscr.io/linuxserver/babybuddy:2.1.2"
     restart_policy: "always"
     cleanup: true
     pull: true
