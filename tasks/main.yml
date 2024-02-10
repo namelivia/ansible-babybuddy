@@ -23,7 +23,7 @@
 - name: Create app container
   docker_container:
     name: "{{ application_name }}"
-    image: "lscr.io/linuxserver/babybuddy:2.1.2"
+    image: "lscr.io/linuxserver/babybuddy:2.2.1"
     restart_policy: "always"
     cleanup: true
     pull: true
@@ -54,8 +54,9 @@
 
 # Restart the container so the configuration changes are picked up
 - name: Restart babybuddy
-  shell: 
-    cmd: docker restart babybuddy
+  command: docker restart babybuddy
+  register: restart_babybuddy_result
+  changed_when: restart_babybuddy_result.rc != 0
 
 - name: Create database
   include_role:
@@ -77,4 +78,4 @@
     name: ansible-backups
     tasks_from: setup-restic-backups
   vars:
-    file_path: "{{ hostvars[inventory_hostname].working_directory }}{{application_name}}/media"
+    file_path: "{{ hostvars[inventory_hostname].working_directory }}{{ application_name }}/media"
